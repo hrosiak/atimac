@@ -1,0 +1,9 @@
+Requirements
+------------
+1. fortran ATIMA v1.3 sources in atima.1.3 
+2. cython for python module 
+
+Compiling
+----------
+1. make
+2. make py (optional for building python module)

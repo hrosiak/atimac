@@ -31,3 +31,6 @@
 # Debug files
 *.dSYM/
 *.su
+
+# atima source code
+atima.1.3/*

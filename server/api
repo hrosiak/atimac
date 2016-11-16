@@ -1,0 +1,42 @@
+RESTAPI
+=======
+
+/version (GET)
+--------------
+input: none
+output: JSON string, keys: "atima": version of atima used, "atimac":version of atimac lib used
+	example: {"atima":"1.3", atimac:"1.0"}
+	
+/calculate (POST)
+input: JSON string
+	required keys: "projectile" : array of number [Ap, Qp, Ein] in [u, e and MeV/u] units 
+			Ap - mass of the projectile in u
+			Qp - charge of the projectile in e
+			Ein - Energy of the projectile in MeV/u
+			"matter" : array of arrays of numbers [[At, Zt, rho, thickness, isgas],[...]]
+			At - mass of the target nucleus
+			Zt - proton number of the target nucleus
+			rho - density of the target in g/cm3
+			thickenss - thickness in mg/cm2
+			isgas - 1 if target is gas, 0 otherwise
+			
+output: JSON string, keys:
+	"result":  JSON object with {Ein: incoming energy in MeV/u, 
+				     Eout: outcoming energy after matter
+				     Estr: Energy straggling after matter
+				     astr: angular straggling after matter
+				     ap: mass of projectile
+				     zp: charge of projectile
+				    }
+	"partial": array of JSON objects, for each layer or target of matter partial results are provided
+		{
+		range - range in the layer or target [mg/cm2]
+		ein - input energy [MeV/u]
+		eout - output energy [MeV/u]
+		astr - angular straggling [mrad]
+		estr - energy straggling [MeV/u]
+		rstr - range straggling [mg/cm2]
+		dedxo - stopping power incoming [MeV/mg/cm2]
+		dedxi - stopping power outcoming [MeV/mg/cm2]
+		de - energy loss in the layer [MeV]
+		}
