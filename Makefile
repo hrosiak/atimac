@@ -1,5 +1,5 @@
 AP=atima.1.3/lib
-obj=e_out.o interv.o atimaspline.o  
+obj=e_out.o atimaspline.o  
 libs=$(AP)/libdedx.a $(AP)/libbspline.a $(AP)/libcolsys.a $(AP)/libcmlib.a 
 FC=gfortran -fPIC 
 GCCARG=-std=gnu99 
@@ -44,5 +44,5 @@ tar:
 	tar cvf atima.tar *.h *.c *.f *.cpp *.pyx *.pxd setup.py test.py Makefile server/Makefile server/*.js server/*.cpp server/*.py
 
 clean:
-	-rm *.o *.so *.a cmokatest atimacpy.c *.tar
+	-rm *.o *.so *.a cmockatest atimacpy.c *.tar
 	cd atima.1.3/src/atima && $(MAKE) purge
