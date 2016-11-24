@@ -143,6 +143,4 @@ double atima_tof(struct splines *s, double energy_in, double energy_out);
 
 // for fortran code
 double bvalue_(double *, double *, int *, int *, double *, int *);
-double e_out_(double *, double *, int *, int *, double *, double *, double *);
-
 #endif
