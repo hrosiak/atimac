@@ -420,7 +420,8 @@ void atimac_preparetarget(double *a, int *z){
 void atimac_getresults(struct splines *ss, double ein, double th, atima_results *res){
     res->Ein = ein;
     res->range = atima_range(ss,res->Ein);
-    res->Eout = atima_enver(ss,res->Ein,th/res->range);
+//    res->Eout = atima_enver(ss,res->Ein,th/res->range);
+    res->Eout = atima_enver(ss,res->Ein,th);
     res->dedxi = atima_dedx(ss,res->Ein);
     res->dedxo = atima_dedx(ss,res->Eout);
     res->sigma_r = atima_sigra(ss,res->Ein);
@@ -651,10 +652,44 @@ double atima_range(struct splines *s, double energy) {
 
 double atima_enver(struct splines *s, double energy, double thickness) {
    double range;
+   double r;
+   double e;
+   double lo, hi;
+   double dedx;
+   double step;
+   double r1,r2;
+   int i=1;
+   const double epsilon = 0.000001;
+   
    range = atima_range(s, energy);
-   //if ( range <= thickness ) return 0.0;
-   if ( thickness >= 1) return 0.0;
-   return e_out_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&range,&energy,&thickness);
+   dedx = 1/bvalue_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&energy,&i); // 
+
+   if ( range <= thickness ) return 0.0;
+   //if( thickness >= 1) return 0.0;
+   //if(thickness ==0) return energy;
+
+   lo = 0;
+   hi = energy;
+   
+   r2 = range - atima_range(s,hi) - thickness;
+   r1 = range - thickness;
+     
+   e = energy;
+   
+   while(1){
+        r2 = range - atima_range(s,hi) - thickness;
+        r1 = range - atima_range(s,lo) - thickness;
+        r = range - atima_range(s,e) - thickness;
+        if(fabs(r)<epsilon)return e;
+        step = -r*dedx;
+        e = e-step;
+        dedx = 1/bvalue_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&e,&i); //
+   }    
+   
+return -1;
+//   return e_out_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&range,&energy,&thickness);
+
+
 }
 
 double atima_sigra(struct splines *s, double energy) {
