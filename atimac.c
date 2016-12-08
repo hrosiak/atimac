@@ -657,9 +657,10 @@ double atima_enver(struct splines *s, double energy, double thickness) {
    double lo, hi;
    double dedx;
    double step;
-   double r1,r2;
+  // double r1,r2;
    int i=1;
    const double epsilon = 0.000001;
+   int counter=0;
    
    range = atima_range(s, energy);
    dedx = 1/bvalue_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&energy,&i); // 
@@ -671,19 +672,24 @@ double atima_enver(struct splines *s, double energy, double thickness) {
    lo = 0;
    hi = energy;
    
-   r2 = range - atima_range(s,hi) - thickness;
-   r1 = range - thickness;
+//   r2 = range - atima_range(s,hi) - thickness;
+//   r1 = range - thickness;
      
    e = energy;
-   
+   dedx = 1/bvalue_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&e,&i);
+   e = energy - (thickness*dedx);
    while(1){
-        r2 = range - atima_range(s,hi) - thickness;
-        r1 = range - atima_range(s,lo) - thickness;
+        //r2 = range - atima_range(s,hi) - thickness;
+        //r1 = range - atima_range(s,lo) - thickness;
         r = range - atima_range(s,e) - thickness;
+        //printf("Eout loop, e=%lf,range = %lf,th=%lf, dif  =%lf, dedxi = %lf\n",e,range,thickness,r,dedx);
         if(fabs(r)<epsilon)return e;
         step = -r*dedx;
         e = e-step;
+        if(e<0){return 0;} 
         dedx = 1/bvalue_(s->range_spline->t,s->range_spline->b,&(s->range_spline->n),&(s->range_spline->k),&e,&i); //
+        counter++;
+        if(counter>100){printf("too many iterations");return -1;}
    }    
    
 return -1;

@@ -2,6 +2,7 @@ import unittest
 import atimacpy as atima
 import json
 import math
+import numpy as np
 
 total_result_keys = ["Ein","Eout","dE","tof","Zp","Ap","T","sigma_a","sigma_E"]
 partial_result_keys = ["Ein","Eout","dE","tof","sigma_a","sigma_E","sigma_r","dedxi","dedxo"]
@@ -194,6 +195,16 @@ class Test_atima_matter(unittest.TestCase):
         self.assertAlmostEqual(r1[key],0.24,places=1)
         key="sigma_a"
         self.assertAlmostEqual(r1[key],1.04,places=1)
+    
+    def test_stopping(self):
+        matter = atima.atima_matter()
+        matter.add(0,29,1,1,0)
+        e_atima = np.logspace(-3,4,150)
+        for _e in e_atima:
+            res = matter.calculate(1,1,_e)
+            self.assertTrue("Eout" in res)
+            
+        
     
 if __name__ == '__main__':
     unittest.main()

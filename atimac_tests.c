@@ -46,6 +46,14 @@ static void test_stopping(void **state){
     assert_true(fabs(results.sigma_E) < 0.0001);
     assert_true(fabs(results.sigma_a) < 0.0001);
     assert_true(fabs(results.sigma_r  - 1.766805) < 0.1);
+    
+    // 0.1 MeV/u
+    atimac_calculate(47.9416,20,0.1, 12.011, 6, 2.253,1000,0,&results);
+    assert_true(fabs(results.Eout) < 0.0001);
+    
+    // 0.002 MeV/u
+    atimac_calculate(1,1,0.02, 12.011, 6, 2.253,1,0,&results);
+    assert_true(fabs(results.Eout) < 0.0001);
 }
 
 static void test_gastarget(void **state){
