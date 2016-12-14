@@ -8,9 +8,16 @@
 
 static void test_u(void **state){
     struct atima_results results;
-    atimac_calculate(238,92,1000, 12, 6, 2.253,1000,0,&results);
-    assert_true( fabs(results.range - 10) < 0.5);
+    atimac_calculate(238,92,1000, 12.011, 6, 2.253,1000,0,&results);
+    assert_true( fabs(results.range -10) < 0.5);
 }
+
+static void test_garbage(void **state){
+    struct atima_results results;
+    atimac_calculate(1,1,1, 0, 0, 1.0,1.0,0,&results);
+    assert_true( fabs(results.range - 0) < 0.005);
+}
+
 
 static void test_ca(void **state){
     struct atima_results results;
@@ -143,8 +150,9 @@ static void test_splinescache(void **state){
 int main(){
     const struct CMUnitTest tests[] = {
 	cmocka_unit_test(test_splinescache),
-    cmocka_unit_test(test_stopping),
-    cmocka_unit_test(test_u),
+       cmocka_unit_test(test_stopping),
+       cmocka_unit_test(test_u),
+       cmocka_unit_test(test_garbage),
 	cmocka_unit_test(test_ca),
 	cmocka_unit_test(test_gastarget)
 	};
