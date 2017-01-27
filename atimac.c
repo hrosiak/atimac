@@ -348,7 +348,7 @@ void atimac_compoundtarget(int *z, int *nt, double *at, int *zt, double *ipot, i
 int atimac_calculate(double ap, int zp, double ein, double at, int zt, double rho, double th, int isgas, atima_results *res){
     struct splines *ss=NULL;
     
-    if(zt>ATIMAC_ZMAX || zt<1){
+    if(zt<1){
         atimac_results_clear(res);
         return 0;
         }
