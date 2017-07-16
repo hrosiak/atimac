@@ -62,8 +62,8 @@ class atima_matter:
                 if(ares.Eout):
                         self.total["sigma_E"] = + self.total["sigma_E"] + (math.pow(ares.sigma_E*a/ares.dedxo,2))
                         self.total["sigma_a"] = self.total["sigma_a"] + math.pow(ares.sigma_a,2);
-                        self.total["dE"] = self.total["dE"] + ares.dE;
                         self.total["tof"] = self.total["tof"] + ares.tof;
+                self.total["dE"] = self.total["dE"] + ares.dE;
             else:
                 ares.Ein = ein
                 ares.Eout = ein
