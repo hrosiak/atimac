@@ -743,6 +743,7 @@ double atima_astragg(struct splines *s, double energy_in, double energy_out) {
 double atima_tof(struct splines *s, double energy_in, double energy_out){
    int i=0;
    double t1,t2;
+   if(energy_out==0.0)return 0.0;
    t1 = bvalue_(s->tof_spline->t,s->tof_spline->b,&(s->tof_spline->n),&(s->tof_spline->k),&energy_in,&i);
    t2 = bvalue_(s->tof_spline->t,s->tof_spline->b,&(s->tof_spline->n),&(s->tof_spline->k),&energy_out,&i);
    return t1-t2;
