@@ -10,6 +10,8 @@ const char *atimac_version = "1.0";
 const char *atima_version = "1.3";
 const int atimac_usecache = 1;
 
+const double thin_target_limit = 1.0 - THIN_TARGET_ENERGY_LIMIT;
+
 #define ATIMAC_ZMAX 120
 #define ATIMAC_FILENAME_SIZE 36  // comes from atima fortran functions
 #define ATIMAC_MAXNT 5          // naximum unmber of components in compunds material
@@ -420,14 +422,31 @@ void atimac_preparetarget(double *a, int *z){
 void atimac_getresults(struct splines *ss, double ein, double th, atima_results *res){
     res->Ein = ein;
     res->range = atima_range(ss,res->Ein);
-//    res->Eout = atima_enver(ss,res->Ein,th/res->range);
+    //res->Eout = atima_enver(ss,res->Ein,th/res->range);
     res->Eout = atima_enver(ss,res->Ein,th);
     res->dedxi = atima_dedx(ss,res->Ein);
     res->dedxo = atima_dedx(ss,res->Eout);
     res->sigma_r = atima_sigra(ss,res->Ein);
+    res->dE =(res->Ein - res->Eout)*(ss->m_projectile); // in MeV
+
+    #ifdef USE_THIN_TARGET_APPROXIMATION
+    if(thin_target_limit*res->Ein < res->Eout){ // thin target approximation
+        double s1 = atima_domega2de(ss,ein)*(res->Ein - res->Eout);
+        double s2 = atima_domega2de(ss,res->Eout)*(res->Ein - res->Eout);
+        res->sigma_E = res->dedxo*sqrt(0.5*(s1+s2))/ss->m_projectile; //this supppose to be in MeV/u
+        s1 = atima_da2de(ss,ein);
+        s2 = atima_da2de(ss,res->Eout);
+        res->sigma_a = 1000.0*sqrt(0.5*(s1+s2));
+    }
+    else { // thick target calculation
+        res->sigma_E = atima_sigre(ss,res->Ein,res->Eout)*res->dedxo/ss->m_projectile; // in MeV/u
+        res->sigma_a = atima_astragg(ss,res->Ein,res->Eout)*1000; // in mrad
+    }
+    #else // in case we do not use approximation
     res->sigma_E = atima_sigre(ss,res->Ein,res->Eout)*res->dedxo/ss->m_projectile; // in MeV/u
     res->sigma_a = atima_astragg(ss,res->Ein,res->Eout)*1000; // in mrad
-    res->dE =(res->Ein - res->Eout)*(ss->m_projectile); // in MeV
+    #endif
+
     #ifdef TOFSPLINE
     res->tof = atima_tof(ss,res->Ein,res->Eout);
     #endif
@@ -706,6 +725,14 @@ double atima_sigra(struct splines *s, double energy) {
     return (double) sqrt((double)r1);
 }
 
+double atima_sigra2(struct splines *s, double energy) {
+    int i = 0;
+    double r1;
+
+    r1 = bvalue_(s->rstragg_spline->t,s->rstragg_spline->b,&(s->rstragg_spline->n),&(s->rstragg_spline->k),&energy,&i);
+    return (double)r1;
+}
+
 double atima_sigre(struct splines *s, double ein, double eout) {
     int i = 0;
     double r1,r2;
@@ -713,6 +740,13 @@ double atima_sigre(struct splines *s, double ein, double eout) {
     r1 = bvalue_(s->rstragg_spline->t,s->rstragg_spline->b,&(s->rstragg_spline->n),&(s->rstragg_spline->k),&ein,&i);
     r2 = bvalue_(s->rstragg_spline->t,s->rstragg_spline->b,&(s->rstragg_spline->n),&(s->rstragg_spline->k),&eout,&i);
     return sqrt(r1-r2);
+}
+
+double atima_domega2de(struct splines *s, double energy) {
+    int i = 1;
+    double r1;
+    r1 = bvalue_(s->rstragg_spline->t,s->rstragg_spline->b,&(s->rstragg_spline->n),&(s->rstragg_spline->k),&energy,&i);
+    return r1;
 }
 
 
@@ -737,6 +771,13 @@ double atima_astragg(struct splines *s, double energy_in, double energy_out) {
     }
     
     return (double) sqrt( (double) (a1 - a2) );                                   
+}
+
+double atima_da2de(struct splines *s, double energy){
+    int i = 1;
+    double r;
+    r = bvalue_(s->astragg_spline->t,s->astragg_spline->b,&(s->astragg_spline->n),&(s->astragg_spline->k),&energy,&i);
+    return r;
 }
 
 #ifdef TOFSPLINE
