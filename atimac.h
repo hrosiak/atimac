@@ -7,6 +7,8 @@ extern const char *atima_version;
 #define ATIMAC_USE_SPLINE_CACHE 1
 #define ATIMAC_MAXCACHE 100 // maximum cached splines
 #define TOFSPLINE 1
+#define USE_THIN_TARGET_APPROXIMATION 1
+#define THIN_TARGET_ENERGY_LIMIT 1e-3;
 
 /**
  * structure to store results of the ATIMA calculation
@@ -136,9 +138,12 @@ void free_atima_spline(struct splines *s);
 double atima_range(struct splines *s, double energy); 
 double atima_enver(struct splines *s, double energy, double thickness); 
 double atima_sigra(struct splines *s, double energy);
+double atima_sigra2(struct splines *s, double energy);
 double atima_sigre(struct splines *s, double ein, double eout);
+double atima_domega2de(struct splines *s, double energy);
 double atima_dedx(struct splines *s, double energy);
 double atima_astragg(struct splines *s, double energy_in, double energy_out);
+double atima_da2de(struct splines *s, double energy);
 double atima_tof(struct splines *s, double energy_in, double energy_out);
 
 // for fortran code
