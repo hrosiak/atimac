@@ -433,10 +433,10 @@ void atimac_getresults(struct splines *ss, double ein, double th, atima_results 
     if(thin_target_limit*res->Ein < res->Eout){ // thin target approximation
         double s1 = atima_domega2de(ss,ein)*(res->Ein - res->Eout);
         double s2 = atima_domega2de(ss,res->Eout)*(res->Ein - res->Eout);
-        res->sigma_E = res->dedxo*sqrt(0.5*(s1+s2))/ss->m_projectile; //this supppose to be in MeV/u
+        res->sigma_E = (res->Ein - res->Eout)*res->dedxo*sqrt(0.5*(s1+s2))/ss->m_projectile; //this supppose to be in MeV/u
         s1 = atima_da2de(ss,ein);
         s2 = atima_da2de(ss,res->Eout);
-        res->sigma_a = 1000.0*sqrt(0.5*(s1+s2));
+        res->sigma_a = 1000.0*sqrt(0.5*(s1+s2))*(res->Ein-res->Eout);
     }
     else { // thick target calculation
         res->sigma_E = atima_sigre(ss,res->Ein,res->Eout)*res->dedxo/ss->m_projectile; // in MeV/u
