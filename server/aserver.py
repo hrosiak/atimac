@@ -11,8 +11,6 @@ def de():
         data = request.get_json(force=True)
     except:
         return make_response(jsonify({"error": "JSON parsing"}))
-
-    print(data);
     
     # now check input data
     if("projectile" not in data):
