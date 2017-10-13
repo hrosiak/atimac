@@ -78,9 +78,6 @@ class atima_matter:
         else: 
                 self.total["sigma_E"] = 0
                 self.total["sigma_a"] = 0
-        self.total["Ap"] = a
-        self.total["Zp"] = z
-        self.total["T"] = e
         self.A = a;
         self.Z = z;
         self.T = e;
@@ -88,6 +85,7 @@ class atima_matter:
     
     def getJSON(self):
         res = {}
+        res["projectile"] = {"A":self.A, "Z":self.Z, "T":self.T}
         res["result"] = self.total
         res["partial"] = self.results
         
