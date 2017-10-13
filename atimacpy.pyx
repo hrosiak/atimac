@@ -13,7 +13,7 @@ class atima_matter:
     
     def clear(self):
         self.results = []
-        self.total = {"Ein":0, "Eout":0, "dE":0, "sigma_a":0, "sigma_E":0, "Ap":0, "Zp":0,"T":0,"tof":0}
+        self.total = {"Ein":0, "Eout":0, "Eloss":0, "sigma_a":0, "sigma_E":0, "Ap":0, "Zp":0,"T":0,"tof":0}
     
     def add(self,a,z,rho,th,isgas):
         self.matter.append([a,z,rho,th,isgas])
@@ -63,11 +63,11 @@ class atima_matter:
                         self.total["sigma_E"] = + self.total["sigma_E"] + (math.pow(ares.sigma_E*a/ares.dedxo,2))
                         self.total["sigma_a"] = self.total["sigma_a"] + math.pow(ares.sigma_a,2);
                         self.total["tof"] = self.total["tof"] + ares.tof;
-                self.total["dE"] = self.total["dE"] + ares.dE;
+                self.total["Eloss"] = self.total["Eloss"] + ares.dE;
             else:
                 ares.Ein = ein
                 ares.Eout = ein
-            self.results.append({"Ein":ares.Ein,"Eout":ares.Eout,"sigma_E":ares.sigma_E,"dE":ares.dE,"sigma_a":ares.sigma_a,"sigma_r":ares.sigma_r,"range":ares.range,"tof":ares.tof,"dedxi":ares.dedxi,"dedxo":ares.dedxo})
+            self.results.append({"Ein":ares.Ein,"Eout":ares.Eout,"sigma_E":ares.sigma_E,"Eloss":ares.dE,"sigma_a":ares.sigma_a,"sigma_r":ares.sigma_r,"range":ares.range,"tof":ares.tof,"dEdxi":ares.dedxi,"dEdxo":ares.dedxo})
         
         # now check if projectile was stopped and set total results
         self.total["Eout"] = ares.Eout
@@ -88,26 +88,26 @@ class atima_matter:
     
     def getJSON(self):
         res = {}
-        res["results"] = self.total
+        res["result"] = self.total
         res["partial"] = self.results
         
-        res["results"]["Ein"] = round(res["results"]["Ein"],4)
-        res["results"]["Eout"] = round(res["results"]["Eout"],4)
-        res["results"]["sigma_E"] = round(res["results"]["sigma_E"],4)
-        res["results"]["sigma_a"] = round(res["results"]["sigma_a"],4)
-        res["results"]["dE"] = round(res["results"]["dE"],3)
-        res["results"]["tof"] = round(res["results"]["tof"],3)
+        res["result"]["Ein"] = round(res["result"]["Ein"],4)
+        res["result"]["Eout"] = round(res["result"]["Eout"],4)
+        res["result"]["sigma_E"] = round(res["result"]["sigma_E"],4)
+        res["result"]["sigma_a"] = round(res["result"]["sigma_a"],4)
+        res["result"]["Eloss"] = round(res["result"]["Eloss"],3)
+        res["result"]["tof"] = round(res["result"]["tof"],3)
         
         for e in res["partial"]:
-            for k in ["Eout","Ein","sigma_E","sigma_a","dE","sigma_r","range","tof","dedxi","dedxo"]:
+            for k in ["Eout","Ein","sigma_E","sigma_a","Eloss","sigma_r","range","tof","dEdxi","dEdxo"]:
                 e[k] = round(e[k],5)
         return res
         
     def print_results(self):
         res = self.total
         print("Summary\n-------")
-        print("Ein = %g MeV/u, Eout = %g MeV/u, dE = %g MeV"%(res["Ein"],res["Eout"],res["dE"]))
+        print("Ein = %g MeV/u, Eout = %g MeV/u, dE = %g MeV"%(res["Ein"],res["Eout"],res["Eloss"]))
         for i, r in enumerate(self.results):
             print("------- %d -------"%i)
-            print("Ein = %g MeV/u, Eout = %g MeV/u, dE = %g MeV\nsigma_E = %g MeV/u, sigma_a = %g mrad"%(r["Ein"],r["Eout"],r["dE"],r["sigma_E"],r["sigma_a"]))
+            print("Ein = %g MeV/u, Eout = %g MeV/u, dE = %g MeV\nsigma_E = %g MeV/u, sigma_a = %g mrad"%(r["Ein"],r["Eout"],r["Eloss"],r["sigma_E"],r["sigma_a"]))
     

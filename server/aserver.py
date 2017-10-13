@@ -4,6 +4,8 @@ import atimacpy
 
 app = Flask(__name__)
 
+def log_data(d):
+    print("CATIMA:{\"IP\":%s, \"p\":%s,\"m\":%s}"%(request.remote_addr,d["projectile"],d["matter"]))
 
 @app.route('/calculate', methods=['GET', 'POST'])
 def de():
@@ -11,8 +13,6 @@ def de():
         data = request.get_json(force=True)
     except:
         return make_response(jsonify({"error": "JSON parsing"}))
-
-    print(data);
     
     # now check input data
     if("projectile" not in data):
@@ -24,6 +24,7 @@ def de():
     
     if(len(data["projectile"])<3):
         return error("projectile ")
+    
     
     Ap = data["projectile"][0]
     Zp = data["projectile"][1]
