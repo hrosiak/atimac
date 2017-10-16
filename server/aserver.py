@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, abort, jsonify, request, make_response
 import atimacpy
+import numpy as np
 
 app = Flask(__name__)
 
@@ -46,6 +47,57 @@ def de():
         
     mat.calculate(Ap,Zp,T)
     return make_response(jsonify(mat.getJSON()))
+
+@app.route("/data",methods=['GET', 'POST'])
+def data():
+    try:
+        data = request.get_json(force=True)
+    except:
+        return make_response(jsonify({"error": "JSON parsing"}))
+
+    # now check input data
+    if("projectile" not in data):
+        return error("projectile missing")
+    
+    if("matter" not in data or len(data["matter"])<1):
+        return error("matter missing")
+    
+    
+    if(len(data["projectile"])<3):
+        return error("projectile ")
+    
+    energy_table = np.logspace(-2.99,4.99,num=500)
+    Ap = data["projectile"][0]
+    Zp = data["projectile"][1]
+
+    mat = atimacpy.atima_matter()
+    energy = []
+    dEdx = []
+    ran = []
+    res = {}
+    Am = 0
+    Zm = 0
+    for m in data["matter"]:
+        if(len(m)<5):
+            error("matter error")
+        try:
+            Am = float(m[0])
+            Zm = int(m[1])
+            rho = float(m[2])
+            th = float(m[3])
+            gas = int(m[4])
+        except:
+            return error("matter error")
+        mat.add(Am,Zm,rho,th,gas)
+        
+    for e in energy_table:
+        energy.append(e)
+        mat.calculate(Ap,Zp,e)
+        dEdx.append(mat.results[0]["dEdxi"])
+        ran.append(mat.results[0]["range"])
+    res = {"energy":energy,"dEdx":dEdx,"range":ran,"Am":Am,"Zm":Zm}
+    return make_response(jsonify(res))
+
 
 @app.route("/version",methods=['GET'])
 def version():
